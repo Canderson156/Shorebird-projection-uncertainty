@@ -1,7 +1,7 @@
 # Compile results from bootstraped models of future suitable habitat area
 
 
-tic() 
+ 
 ##### LOAD OBJECTS
 
 
@@ -222,6 +222,13 @@ sd_trend <- bootstrap %>%
   summarize(sd_trend = sd(log_trend))
 
 
+# relationships between sd and prevalence
+
+sd_trend <- merge(sd_trend, prevalence)
+
+summary(lm(sd_trend ~ plots_present, data = sd_trend))
+
+
 
 # Kappa statistic
 
@@ -237,28 +244,9 @@ Kappa_selection_model <- bootstrap %>%
 
 write.csv(Kappa_selection_model, "Kappa_selection_model.csv")
 
-#Delete these if I don't end up using them in the final version of the paper
-
-#Kappa_species_model <- bootstrap %>%
-#  group_by(Species, model) %>%
-#  summarize(Kappa = median(Kappa)) %>%
-#  pivot_wider(names_from = model, values_from = Kappa) %>%
-#  mutate(dif = glm-rf) %>%
-#  merge(prevalence) %>%
-#  select(-prop_present)
-
-#Kappa_species_selection <- bootstrap %>%
-#  group_by(Species, selection) %>%
-#  summarize(Kappa = median(Kappa)) %>%
-#  pivot_wider(names_from = selection, values_from = Kappa) %>%
-#  merge(prevalence) %>%
-#  select(-prop_present)
 
 
-
-
-
-# probability of having half/twice as much habitat
+#### probability of having half/twice as much habitat
 
 # probability of having half habitat
 
@@ -432,7 +420,7 @@ ss_plot <- all_plot | individual_plot | ss_half_plot | ss_twice_plot
 h1 <- ggplot(bootstrap, aes(x = pool, y = predicted_half)) +
   geom_boxplot() +
   labs(y = str_wrap("Predicted probability of half suitable habitat", width = 25),
-       x = "Pool of canditate variables") +
+       x = "Pool of candidate variables") +
   scale_x_discrete(labels = c("Climate-only", "Climate+additional")) +
   theme(axis.title.y = element_blank())
 
@@ -484,7 +472,7 @@ box_plots_half <- grid.arrange(
 t1 <- ggplot(bootstrap, aes(x = pool, y = predicted_twice)) +
   geom_boxplot() +
   labs(y = str_wrap("Predicted probability of twice suitable habitat", width = 25),
-       x = "Pool of canditate variables") +
+       x = "Pool of candidate variables") +
   scale_x_discrete(labels = c("Climate-only", "Climate+additional"))  +
   theme(axis.title.y = element_blank())
 
@@ -594,4 +582,3 @@ future245_temp <- mean_temps2$mean_temp_all[mean_temps2$scenario == "future245"]
 future585_temp <- mean_temps2$mean_temp_all[mean_temps2$scenario == "future585"]
 
 
-toc()
